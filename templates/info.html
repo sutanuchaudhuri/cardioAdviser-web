@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Guide - Cardio Health</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header { background: #0073e6; color: white; padding: 15px; text-align: center; }
+        nav { background: #f8f9fa; padding: 10px; text-align: center; }
+        nav a { margin: 0 15px; text-decoration: none; color: #0073e6; font-weight: bold; }
+        section { padding: 20px; }
+        .container { display: flex; flex-wrap: wrap; justify-content: space-between; }
+        .card { background: #f1f1f1; padding: 15px; margin: 10px; border-radius: 5px; width: 48%; }
+        footer { background: #0073e6; color: white; text-align: center; padding: 10px; margin-top: 20px; }
+        @media (max-width: 768px) { .card { width: 100%; } }
+
+      .floating-btn {
+  position: fixed;
+  top: 100px;
+  right: 100px;
+}
+
+.floating-btn .main-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #222;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.3);
+  transition: all 300ms ease;
+}
+
+.floating-btn.active .main-btn {
+  transform: rotateZ(45deg);
+}
+
+.floating-btn .main-btn svg {
+  width: 30px;
+  display: flex;
+}
+
+.floating-btn .options {
+  position: absolute;
+  transform: translate(30px, 30px) scale(0);
+  opacity: 0;
+  transition: all 300ms ease;
+}
+
+.floating-btn.active .options {
+  transform: translate(5px, 5px) scale(1);
+  opacity: 1;
+}
+
+.floating-btn .option {
+  background: #eee;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px -3px rgba(0, 0, 0, 0.3);
+  position: absolute;
+}
+
+.floating-btn .option a {
+  text-decoration: none;
+  color: #222;
+  user-select: none;
+}
+
+.floating-btn .option:nth-child(1) {
+  transform: translate(-74px, 20px) rotate(354deg);
+}
+
+.floating-btn .option:nth-child(2) {
+  transform: translate(-62px, -33px) rotate(16deg);
+}
+
+.floating-btn .option:nth-child(3) {
+  transform: translate(48px, 26px) rotate(12deg);
+}
+
+.floating-btn .option:nth-child(4) {
+  transform: translate(45px, -30px) rotate(348deg);
+}
+    </style>
+
+</head>
+<body>
+    <header>
+        <h1>Patient Guide - Cardio Health</h1>
+    </header>
+    <nav>
+        <a href="#lobectomy">Lobectomy</a>
+        <a href="#bypass">Coronary Artery Bypass</a>
+        <a href="#heart-transplant">Heart Transplant</a>
+        <a href="#lung-transplant">Lung Transplant</a>
+    </nav>
+
+    <section id="lobectomy">
+        <h2>Lobectomy</h2>
+        <div class="container">
+            <div class="card">
+                <h3>What is Lobectomy?</h3>
+                <p>A surgical procedure to remove a lobe of the lung due to conditions like lung cancer or infections.</p>
+            </div>
+            <div class="card">
+                <h3>Recovery Process</h3>
+                <p>Recovery typically takes a few weeks, with follow-up visits and rehabilitation.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="bypass">
+        <h2>Coronary Artery Bypass Surgery</h2>
+        <div class="container">
+            <div class="card">
+                <h3>What is Bypass Surgery?</h3>
+                <p>A procedure to improve blood flow by bypassing blocked arteries using grafts.</p>
+            </div>
+            <div class="card">
+                <h3>Cost & Recovery</h3>
+                <p>Average cost is around $150,000. Recovery takes about 5-7 weeks.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="heart-transplant">
+        <h2>Heart Transplant</h2>
+        <div class="container">
+            <div class="card">
+                <h3>What is a Heart Transplant?</h3>
+                <p>A procedure where a diseased heart is replaced with a healthy donor heart.</p>
+            </div>
+            <div class="card">
+                <h3>Post-Surgery Care</h3>
+                <p>Patients require lifelong medications and lifestyle changes.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="lung-transplant">
+        <h2>Lung Transplant</h2>
+        <div class="container">
+            <div class="card">
+                <h3>What is a Lung Transplant?</h3>
+                <p>A surgical procedure to replace a diseased lung with a healthy donor lung.</p>
+            </div>
+            <div class="card">
+                <h3>Chances of Second Surgery</h3>
+                <p>Success rates vary, and patients require careful monitoring post-surgery.</p>
+            </div>
+        </div>
+    </section>
+   <div class="floating-btn">
+       <div class="main-btn">
+        <span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+        </span>
+      </div>
+   </div>
+
+    <footer>
+        <p>&copy; 2025 Patient Guide - Cardio Health</p>
+    </footer>
+    <script type="javascript">
+      const floatingBtn = document.querySelector(".floating-btn");
+
+floatingBtn.addEventListener("click", () => {
+  floatingBtn.classList.toggle("active");
+});
+
+document.addEventListener("click", (e) => {
+  if (!floatingBtn.contains(e.target)) {
+    floatingBtn.classList.remove("active");
+  }
+});
+
+    </script>
+</body>
+</html>

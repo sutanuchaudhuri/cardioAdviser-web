@@ -1,0 +1,58 @@
+<script>
+
+  var websocketString = '';
+  if (window.location.hostname === '127.0.0.1') {
+    websocketString = "ws://localhost:8000/ws";
+  } else {
+    websocketString=`wss://${window.location.hostname}/ws`
+  }
+
+  var ws = new WebSocket(websocketString);
+
+  var sendButton = document.getElementById("sendButton");
+  var userInput = document.getElementById("userInput");
+  var chatHistory = document.getElementById("chatHistory");
+  var lastUserMessageDiv = null; // Keep track of the last user message div
+  var isNewUserInput = true; // Flag to track when a new user input happens
+
+  ws.onmessage = function(event) {
+    var message = event.data.trim(); // Trim whitespace from the message
+
+    // Check if it's a continuation of the AI's last message or a new one
+    if (lastUserMessageDiv && !isNewUserInput) {
+      var shouldAddSpace = true;
+      var noPrependSpaceChars = [',', '.', '!', '?', ';', ':', "'"];
+
+      if (noPrependSpaceChars.includes(message.charAt(0))) {
+          shouldAddSpace = false;
+      }
+
+      lastUserMessageDiv.textContent += (shouldAddSpace ? " " : "") + message;
+    } else {
+      // It's either a new user input or the first chunk of AI response for the latest input
+      var messageDiv = document.createElement("div");
+      messageDiv.className = "chat-message ai-response"; // Assign class for styling
+      messageDiv.textContent = message;
+      chatHistory.appendChild(messageDiv);
+      lastUserMessageDiv = messageDiv; // Update the reference to the last message div
+      isNewUserInput = false; // Reset the flag as the AI response starts
+    }
+  };
+
+  sendButton.onclick = function() {
+    var message = userInput.value.trim();
+    if (message) {
+      var userInputDiv = document.createElement("div");
+      userInputDiv.className = "chat-message user-input"; // Use user-input class for user messages
+      userInputDiv.textContent = message;
+      chatHistory.appendChild(userInputDiv);
+
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+
+      ws.send(message);
+      userInput.value = "";
+      isNewUserInput = true; // Set the flag as it's a new user input
+      lastUserMessageDiv = null; // Prepare for the next message
+    }
+  };
+</script>

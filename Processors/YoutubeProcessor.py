@@ -1,0 +1,2 @@
+class YoutubeProcesssor:
+    pass

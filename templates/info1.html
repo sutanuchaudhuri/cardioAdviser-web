@@ -1,0 +1,52 @@
+
+
+<iframe src="https://diwakaraditi30.wixsite.com/cardiac-help/" id="mainframe" name="mainframe" height="98%" width="100%">
+  You need a Frames Capable browser to view this content.
+
+
+
+
+
+</iframe>
+
+     <script>
+      var iframe = document.getElementById('mainframe');
+       iframe.addEventListener('load', function() {
+
+       try{
+    // This function will be executed after the iframe is loaded
+    alert('Iframe is loaded .....');
+    alert(iframe);
+    // Access the iframe's content window and document
+
+    var iframeDocument = iframe.contentWindow.document;
+alert(iframeDocument);
+    // Example: Get the button element inside the iframe
+    var button = iframeDocument.getElementById('comp-m7axbht1').querySelector('button');;
+alert(button);
+    // Add an event listener to the button
+    if (button) {
+        button.addEventListener('click', function() {
+            alert('Button inside iframe was clicked!');
+        });
+    } else {
+        alert('Button not found inside iframe');
+    }
+
+    } catch (error) {
+    // Handle any errors that occur
+    alert('An error occurred: ' + error.message);
+}
+});
+
+
+
+
+
+
+
+
+
+</script>
+
+
