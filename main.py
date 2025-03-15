@@ -14,8 +14,13 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from dotenv_vault import load_dotenv
-load_dotenv()
+
+import os
+from dotenv import load_dotenv, find_dotenv
+
+if os.environ.get("DYNO") is None: #Check if running on Heroku
+    load_dotenv(find_dotenv())
+
 
 
 # # Load, chunk and index the contents of the blog.
