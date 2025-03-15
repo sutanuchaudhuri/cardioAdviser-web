@@ -6,7 +6,7 @@ from langchain_core.messages import AIMessageChunk
 from langchain_core.documents import Document
 import pickle
 # from logging import logging
-import bs4
+from bs4  import BeautifulSoup
 from langchain import hub
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import WebBaseLoader
@@ -14,9 +14,11 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-import os
+from langchain_community.document_loaders import WebBaseLoader
+from langchain_core.documents import Document
 from dotenv import load_dotenv, find_dotenv
+import os
+
 from sqlalchemy.testing.suite.test_reflection import metadata
 
 if os.environ.get("DYNO") is None: #Check if running on Heroku
@@ -42,13 +44,15 @@ if os.environ.get("DYNO") is None: #Check if running on Heroku
 # )
 # We need to add streaming=True
 
+def extract_html_text(html_content_file_name,reference_url):
+    soup = BeautifulSoup(open(f"resources/{html_content_file_name}", encoding="utf8"), "html.parser")
+    html_text= soup.get_text(separator=" ", strip=True)
+    document=Document(page_content=html_text, metadata={'source': f'{reference_url}'})
+    return document
 
-from langchain_community.document_loaders import WebBaseLoader
-from langchain_core.documents import Document
 
 
-
-def load_document(urls):
+def load_document_from_web(urls):
 
     documents=[]
     for url in urls:
@@ -64,8 +68,11 @@ def load_document(urls):
 
     return documents
 
-
-
+html_docs={"a.html":"https://www.pennmedicine.org/make-an-appointment"
+           ,"b.html":"https://www.pennmedicine.org/providers?keyword=Penn-Heart-Surgery-Program&keywordid=57534&keywordtypeid=11"
+           ,"c.html":"https://www.hopkinsmedicine.org/heart-vascular-institute/cardiac-surgery"
+           # ,"d.html":"https://www.hopkinsmedicine.org/heart-vascular-institute/cardiac-surgery/mitral-valve-repair-replacement"
+           }
 
 
 # Define the URLs to load
@@ -82,8 +89,14 @@ urls = [
 
 ]
 
-documents=load_document(urls)
+#load documents from web
+documents=load_document_from_web(urls)
 
+#load document from static html
+for html_doc_key in html_docs:
+   documents.append(extract_html_text(html_content_file_name=html_doc_key,reference_url=html_docs[html_doc_key]))
+
+#load document from pickle
 texts=None
 with open('document.pickle', 'rb') as handle:
     texts = pickle.load(handle)
@@ -93,23 +106,13 @@ documents.append(aditi_doc)
 
 
 
-
-# Initialize the WebBaseLoader for each URL
-#loaders = [WebBaseLoader(url) for url in urls]
-
-
-# Define an asynchronous function to load all documents
-# async def load_documents(loaders):
-#     tasks = [loader.aload() for loader in loaders]
-#     documents = await asyncio.gather(*tasks)
-#     return documents
-
-# Run the asynchronous function to load documents
-# documents = asyncio.run(load_documents(loaders))
-
 # Print the loaded documents
 for doc in documents:
     print(doc)
+
+
+
+#RAG chain component STARTS here
 
 
 vectorstore = Chroma.from_documents(documents=documents, embedding=OpenAIEmbeddings())
