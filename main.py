@@ -17,6 +17,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import os
 from dotenv import load_dotenv, find_dotenv
+from sqlalchemy.testing.suite.test_reflection import metadata
 
 if os.environ.get("DYNO") is None: #Check if running on Heroku
     load_dotenv(find_dotenv())
@@ -42,19 +43,10 @@ if os.environ.get("DYNO") is None: #Check if running on Heroku
 # We need to add streaming=True
 
 
-
-# texts=None
-# with open('document.pickle', 'rb') as handle:
-#     texts = pickle.load(handle)
-#
-# doc = Document(page_content=texts[0])
-
-
-
-
-
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.documents import Document
+
+
 
 def load_document(urls):
 
@@ -78,13 +70,29 @@ def load_document(urls):
 
 # Define the URLs to load
 urls = [
-    "https://diwakaraditi30.wixsite.com/cardiac-help/general-info-cabg",
-    "https://diwakaraditi30.wixsite.com/cardiac-help/causes",
-    "https://diwakaraditi30.wixsite.com/cardiac-help/risks",
-    "https://diwakaraditi30.wixsite.com/cardiac-help/non-surgical-alternatives",
+    "https://diwakaraditi30.wixsite.com/cardiac-help/general-info-cabg"
+    ,"https://diwakaraditi30.wixsite.com/cardiac-help/causes"
+    ,"https://diwakaraditi30.wixsite.com/cardiac-help/risks"
+    ,"https://diwakaraditi30.wixsite.com/cardiac-help/non-surgical-alternatives"
+    ,'https://www.pennmedicine.org/for-patients-and-visitors/find-a-program-or-service/heart-and-vascular/heart-surgery'
+    ,'https://www.pennmedicine.org/make-an-appointment'
+    ,'https://www.pennmedicine.org/providers?keyword=Penn-Heart-Surgery-Program&keywordid=57534&keywordtypeid=11'
+    ,'https://www.hopkinsmedicine.org/heart-vascular-institute/cardiac-surgery'
+    ,'https://www.hopkinsmedicine.org/heart-vascular-institute/cardiac-surgery/mitral-valve-repair-replacement'
+
 ]
 
 documents=load_document(urls)
+
+texts=None
+with open('document.pickle', 'rb') as handle:
+    texts = pickle.load(handle)
+
+aditi_doc = Document(page_content=texts[0], metadata={'source':'Author: Aditi Diwakar, Title: Sugery- Patient Guide'})
+documents.append(aditi_doc)
+
+
+
 
 # Initialize the WebBaseLoader for each URL
 #loaders = [WebBaseLoader(url) for url in urls]
