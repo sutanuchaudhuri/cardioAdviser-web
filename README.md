@@ -32,3 +32,6 @@ git commit -m "Update gradio version in requirements.txt"
 
 # Push to Heroku
 git push heroku main
+
+
+heroku logs -n 200
