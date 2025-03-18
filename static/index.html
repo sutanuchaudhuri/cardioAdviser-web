@@ -32,7 +32,7 @@
             flex-direction: column;
         }
         .chat-header {
-            background-color: #007bff;
+            background-color: #BB3A83;
             color: white;
             padding: 10px;
             text-align: center;
@@ -94,12 +94,12 @@
             white-space: pre-wrap; /* To ensure line breaks are respected */
         }
         #reformulated {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 10px;
-            height: 100px;
-            overflow-y: scroll;
-            white-space: pre-wrap; /* To ensure line breaks are respected */
+            text-align: left;
+              border-radius: 5px;
+              padding: 5px;
+              margin-bottom: 8px;
+
+
         }
 
 
@@ -142,7 +142,7 @@
 <body>
     <iframe src="https://diwakaraditi30.wixsite.com/cardiac-help/"></iframe>
 
-    <button class="floating-button" onclick="toggleChatWindow()">💬</button>
+    <button   style="width: 100px ; height: 100px; background-color: #BB3A83" class="floating-button" onclick="toggleChatWindow()">💬</button>
 
     <div class="chat-window" id="chatWindow">
         <div class="chat-header">
@@ -159,19 +159,19 @@
                 <label for="question">Question:</label>
                 <input type="text" class="form-control" id="question" name="question" required>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" style="background-color: #BB3A83" class="btn btn-primary">Submit</button>
         </form>
 
-        Reformulated Question:
+        Reformulated Question
         <div id="reformulated" class="border rounded p-3"></div>
 
-        Answer:
+        Answer
         <div id="output" class="border rounded p-3"></div>
 
-        Context:
-        <div id="context" class="border rounded p-3"></div>
 
-        Source:
+        <div id="context" style="display:none" class="border rounded p-3"></div>
+
+        Source
         <div id="source" class="border rounded p-3"></div>
     </div>
 
