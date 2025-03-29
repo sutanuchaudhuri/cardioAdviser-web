@@ -45,3 +45,12 @@ https://github.com/gaborvecsei/whisper-live-transcription/blob/main/standalone-p
 https://github.com/ufal/whisper_streaming?tab=readme-ov-file
 
 https://github.com/QuentinFuxa/whisper_streaming_web
+
+
+
+$ sudo -i // then enter password
+
+$ mkdir /Users/ekantikachaudhuri/.config/github-copilot.
+$ touch /Users/ekantikachaudhuri/.config/github-copilot/hosts.json
+$ touch /Users/ekantikachaudhuri/.config/github-copilot/app.json
+$ sudo chmod -R 777 /Users/ekantikachaudhuri/.config/github-copilot

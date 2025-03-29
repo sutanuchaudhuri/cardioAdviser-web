@@ -30,6 +30,8 @@
             box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
             display: none;
             flex-direction: column;
+            resize: horizontal;
+            overflow: auto;
         }
         .chat-header {
             background-color: #BB3A83;
@@ -67,115 +69,67 @@
             font-size: 18px;
             cursor: pointer;
         }
-    </style>
-      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        #output {
-            border: 1px solid #ddd;
+        .chat-message {
+            margin-bottom: 10px;
             padding: 10px;
-            margin-top: 10px;
-            height: 200px;
-            overflow-y: scroll;
-            white-space: pre-wrap; /* To ensure line breaks are respected */
+            border-radius: 5px;
+            word-wrap: break-word;
         }
-        #context {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 10px;
-            height: 200px;
-            overflow-y: scroll;
-            white-space: pre-wrap; /* To ensure line breaks are respected */
+        .user-message {
+            text-align: right;
+            color: blue;
+            background-color: #e0f7fa;
         }
-          #source {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 10px;
-            height: 200px;
-            white-space: pre-wrap; /* To ensure line breaks are respected */
-        }
-        #reformulated {
+        .ai-message {
             text-align: left;
-              border-radius: 5px;
-              padding: 5px;
-              margin-bottom: 8px;
-
-
+            color: green;
+            background-color: #f1f8e9;
+            max-width: 80%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
         }
-
-
-            .chat-history {
-              text-align: left;
-              width: 100%;
-              display: flex;
-              flex-direction: column;
-              overflow-y: auto;
-            }
-            .chat-message {
-              width: fit-content;
-              word-wrap: break-word;
-            }
-
-            .chat-message.user-input {
-              background-color: #d0eaff; /* Light blue background */
-              text-align: left;
-              border-radius: 5px;
-              padding: 5px;
-              margin-bottom: 8px;
-          }
-
-          .chat-message.ai-response {
-              background-color: #f1f1f1; /* Light grey background */
-              text-align: left;
-              border-radius: 5px;
-              padding: 5px;
-              margin-bottom: 8px;
-            }
-
-            #footer {
-                position: fixed;
-                bottom: 3%;
-                width: 95%;
-            }
-
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
     </style>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <iframe src="https://diwakaraditi30.wixsite.com/cardiac-help/"></iframe>
 
-    <button   style="width: 100px ; height: 100px; background-color: #BB3A83" class="floating-button" onclick="toggleChatWindow()">💬</button>
+    <button style="width: 100px; height: 100px; background-color: #BB3A83" class="floating-button" onclick="toggleChatWindow()">💬</button>
 
     <div class="chat-window" id="chatWindow">
         <div class="chat-header">
             Chat
-            <button class="minimize-button" onclick="toggleChatWindow()">−</button>
+            <div>
+                <select id="languageSelect" class="icon-button">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="hi">Hindi</option>
+                </select>
+                <button class="icon-button" onclick="exportPDF()">📄</button>
+                <button class="minimize-button" onclick="toggleChatWindow()">−</button>
+            </div>
         </div>
         <div class="chat-body">
-            <!-- Chat content goes here -->
-
-              <div class="container mt-5">
-        <h1 class="text-center">Ask a Question</h1>
-        <form id="questionForm" class="mb-4">
-            <div class="form-group">
-                <label for="question">Question:</label>
-                <input type="text" class="form-control" id="question" name="question" required>
-            </div>
-            <button type="submit" style="background-color: #BB3A83" class="btn btn-primary">Submit</button>
-        </form>
-
-        Reformulated Question
-        <div id="reformulated" class="border rounded p-3"></div>
-
-        Answer
-        <div id="output" class="border rounded p-3"></div>
-
-
-        <div id="context" style="display:none" class="border rounded p-3"></div>
-
-        Source
-        <div id="source" class="border rounded p-3"></div>
+            <div id="chatHistory" class="chat-history"></div>
+            <form id="questionForm" class="mb-4">
+                <div class="form-group">
+                    <label for="question">Question:</label>
+                    <input type="text" class="form-control" id="question" name="question" required>
+                </div>
+                <button type="submit" style="background-color: #BB3A83" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -184,54 +138,39 @@
         document.getElementById('questionForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const question = document.getElementById('question').value;
-            const outputDiv = document.getElementById('output');
-            const contextDiv = document.getElementById('context');
-            const sourceDiv = document.getElementById('source');
-            const reformulatedDiv = document.getElementById('reformulated');
-            outputDiv.innerHTML = ''; // Clear previous output
-            contextDiv.innerHTML = ''; // Clear previous context
-            reformulatedDiv.innerHTML = ''; // Clear previous reformulated question
-            sourceDiv.innerHTML = ''; // Clear previous source
-
+            const chatHistoryDiv = document.getElementById('chatHistory');
             const url = `/chat_stream/${encodeURIComponent(question)}`;
+
+            // Append user question to chat history
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'chat-message user-message';
+            userMessageDiv.textContent = question;
+            chatHistoryDiv.appendChild(userMessageDiv);
+
+            // Clear the question input box
+            document.getElementById('question').value = '';
+            document.getElementById('question').focus();
+
+            const aiMessageDiv = document.createElement('div');
+            aiMessageDiv.className = 'chat-message ai-message';
+            chatHistoryDiv.appendChild(aiMessageDiv);
 
             const eventSource = new EventSource(url);
 
             eventSource.onmessage = function(event) {
                 try {
-                    if (event.data.trim()) { // Check if the data is not empty
+                    if (event.data.trim()) {
                         const data = JSON.parse(event.data);
-                        if (data.context) {
-                            // Display context data directly
-                            const contextData = data.context.map(item => item.page_content).join('<br><br>');
-                            contextDiv.innerHTML = contextData;
-                            contextDiv.scrollTop = contextDiv.scrollHeight; // Scroll to bottom
-                            //alert(JSON.stringify(data.context));
-
-
-                             const sourceData = data.context.map(item => item.metadata.source).join('<br>');
-                              sourceDiv.innerHTML = sourceData;
-
-
-                        }
-                        if (data.reformulated) {
-                            // Append reformulated question to reformulatedDiv
-                            reformulatedDiv.innerHTML += data.reformulated;
-                            reformulatedDiv.scrollTop = reformulatedDiv.scrollHeight; // Scroll to bottom
-                        }
                         if (data.data) {
-                            // Append regular data to outputDiv
-                            outputDiv.innerHTML += data.data;
-                            outputDiv.scrollTop = outputDiv.scrollHeight; // Scroll to bottom
+                            aiMessageDiv.innerHTML += data.data;
+                            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
                         }
-
-
-
-
-
                     }
                 } catch (error) {
-                    outputDiv.innerHTML += "\nAn error occurred: " + error.message;
+                    const errorMessageDiv = document.createElement('div');
+                    errorMessageDiv.className = 'chat-message ai-message';
+                    errorMessageDiv.textContent = "An error occurred: " + error.message;
+                    chatHistoryDiv.appendChild(errorMessageDiv);
                 }
             };
 
@@ -241,17 +180,40 @@
                 } else if (eventSource.readyState === EventSource.CONNECTING) {
                     // Do nothing
                 } else {
-                    outputDiv.innerHTML += "\nAn error occurred while streaming.";
+                    const errorMessageDiv = document.createElement('div');
+                    errorMessageDiv.className = 'chat-message ai-message';
+                    errorMessageDiv.textContent = "An error occurred while streaming.";
+                    chatHistoryDiv.appendChild(errorMessageDiv);
                 }
                 eventSource.close();
             };
         });
-    </script>
-          <!--Chat content END-->
-        </div>
-    </div>
 
-    <script>
+        document.getElementById('languageSelect').addEventListener('change', function() {
+            const selectedLanguage = this.value;
+            fetch(`/change_language/${selectedLanguage}`, {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Language changed successfully');
+                } else {
+                    console.error('Failed to change language');
+                }
+            });
+        });
+
+        function exportPDF() {
+            fetch('/export_pdf', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log('PDF export initiated');
+                } else {
+                    console.error('Failed to export PDF');
+                }
+            });
+        }
+
         function toggleChatWindow() {
             var chatWindow = document.getElementById('chatWindow');
             if (chatWindow.style.display === 'none' || chatWindow.style.display === '') {

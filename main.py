@@ -101,7 +101,8 @@ texts=None
 with open('document.pickle', 'rb') as handle:
     texts = pickle.load(handle)
 
-aditi_doc = Document(page_content=texts[0], metadata={'source':'Author: Aditi Diwakar, Title: Sugery- Patient Guide'})
+aditi_doc = Document(page_content=texts[0], metadata={'source':'Author: Aditi Diwakar, '
+                                                               'Title: Sugery- Patient Guide'})
 documents.append(aditi_doc)
 
 
@@ -145,7 +146,8 @@ contextualize_q_chain = (contextualize_q_prompt | llm | StrOutputParser()).with_
 qa_system_prompt = """You are an assistant for question-answering tasks related to bypass surgery. \
 Use the following pieces of retrieved context to answer the question. \
 If you don't know the answer, just say that you don't know. \
-Use three sentences maximum and keep the answer concise.\
+Use ten sentences maximum.\
+\
 
 {context}"""
 qa_prompt = ChatPromptTemplate.from_messages(
@@ -207,6 +209,11 @@ def serialize_aimessagechunk(chunk):
 
 
 async def generate_chat_events(message):
+
+    print("===================== START Chat model has started. generate_chat_events ====================")
+    print(message)
+    print("=====================END Chat model has started. generate_chat_events ====================")
+    final_message = ""
     try:
         async for event in rag_chain.astream_events(message, version="v1"):
             # Only get the answer
@@ -214,6 +221,7 @@ async def generate_chat_events(message):
             if all(value in event["tags"] for value in sources_tags) and event["event"] == "on_chat_model_stream":
                 chunk_content = serialize_aimessagechunk(event["data"]["chunk"])
                 if len(chunk_content) != 0:
+                    final_message += chunk_content
                     data_dict = {"data": chunk_content}
                     data_json = json.dumps(data_dict)
                     yield f"data: {data_json}\n\n"
@@ -251,9 +259,16 @@ async def generate_chat_events(message):
 
                 # Convert the dictionary to a JSON string
                 data_json = json.dumps(final_output)
+
+
                 yield f"data: {data_json}\n\n"
             if event["event"] == "on_chat_model_end":
                 print("Chat model has completed one response.")
+                if final_message != "":
+                    print("====================================FINAL output==============================")
+                    print("Final message:", final_message)
+                    print("====================================END FINAL output==============================")
+
 
     except Exception as e:
         print('error' + str(e))
