@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import AIMessageChunk
-
+from reportlab.pdfbase import pdfmetrics
 from langchain_core.documents import Document
 import pickle
 # from logging import logging
@@ -25,6 +25,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from io import BytesIO
@@ -32,7 +33,7 @@ from reportlab.lib import colors
 import re
 if os.environ.get("DYNO") is None: #Check if running on Heroku
     load_dotenv(find_dotenv())
-
+pdfmetrics.registerFont(TTFont('NotoSansDevanagari', 'static/NotoSansDevanagari-Regular.ttf'))
 
 
 # # Load, chunk and index the contents of the blog.
@@ -136,7 +137,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 contextualize_q_system_prompt = """Given a chat history and the latest user question \
 which might reference context in the chat history, formulate a standalone question \
 which can be understood without the chat history. Do NOT answer the question, \
-just reformulate it if needed and otherwise return it as is."""
+just reformulate it if needed and otherwise return it as is. Language: {language}"""
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
     [
         ("system", contextualize_q_system_prompt),
@@ -151,7 +152,7 @@ contextualize_q_chain = (contextualize_q_prompt | llm | StrOutputParser()).with_
 qa_system_prompt = """You are an assistant for question-answering tasks related to bypass surgery. \
 Use the following pieces of retrieved context to answer the question. \
 If you don't know the answer, just say that you don't know. \
-Use ten sentences maximum.\
+Use ten sentences maximum.Language: {language}\
 \
 
 {context}"""
@@ -214,11 +215,12 @@ def serialize_aimessagechunk(chunk):
         )
 
 
-async def generate_chat_events(request: Request, message: str):
+async def generate_chat_events(request: Request, message: dict):
 
     # print("===================== START Chat model has started. generate_chat_events ====================")
     # print(message)
-
+    # print(message)
+    language = message.get("language", "en")
     session =  request.session
     session_chat_history = session.get("session_chat_history", [])
 
@@ -289,10 +291,8 @@ async def generate_chat_events(request: Request, message: str):
         #session["session_chat_history"] = session_chat_history
 
 
-
-
-
 from io import BytesIO
+
 
 
 
@@ -306,8 +306,8 @@ async def export_chat(request: Request):
     data = json.loads(body.decode('utf-8'))
     chat_history = data.get('chat_history', [])
     language_in = data.get('language', 'en')  # Default to 'en' if not provided
-    if language_in=='en':
-        language="English"
+    if language_in == 'en':
+        language = "English"
     elif language_in == 'hi':
         language = "Hindi"
     else:
@@ -339,18 +339,21 @@ async def export_chat(request: Request):
         parent=styles['Heading1'],
         fontSize=18,
         spaceAfter=12,
+        fontName='NotoSansDevanagari' if language_in == 'hi' else 'Helvetica'
     )
     section_style = ParagraphStyle(
         'Section',
         parent=styles['Heading2'],
         fontSize=14,
         spaceAfter=8,
+        fontName='NotoSansDevanagari' if language_in == 'hi' else 'Helvetica'
     )
     content_style = ParagraphStyle(
         'Content',
         parent=styles['Normal'],
         fontSize=12,
         spaceAfter=6,
+        fontName='NotoSansDevanagari' if language_in == 'hi' else 'Helvetica'
     )
 
     # Create a list to hold the PDF elements
@@ -382,11 +385,26 @@ async def export_chat(request: Request):
 
     pdf_buffer.seek(0)
 
+
     return StreamingResponse(pdf_buffer, media_type='application/pdf', headers={'Content-Disposition': 'attachment; filename="chat_summary.pdf"'})
 
+
+
 @app.get("/chat_stream/{message}")
-async def chat_stream_events(request:Request,message: str):
-    return StreamingResponse(generate_chat_events(request=request,message={"question": message, "chat_history": []}),
+async def chat_stream_events(request: Request, message: str):
+
+
+    language_in = request.query_params.get('language', 'en')  # Default to 'en' if not provided
+    if language_in == 'en':
+        language = "English"
+    elif language_in == 'hi':
+        language = "Hindi"
+    else:
+        language = "Spanish"
+    return StreamingResponse(generate_chat_events(
+        request=request, message={"question": message,
+                                  "chat_history": [],
+                                  "language": language}),
                              media_type="text/event-stream")
 
 

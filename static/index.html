@@ -141,11 +141,13 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
+        let selectedLanguage = 'en'; // Global variable to store the selected language
+
         document.getElementById('questionForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const question = document.getElementById('question').value;
             const chatHistoryDiv = document.getElementById('chatHistory');
-            const url = `/chat_stream/${encodeURIComponent(question)}`;
+            const url = `/chat_stream/${encodeURIComponent(question)}?language=${selectedLanguage}`;
 
             // Append user question to chat history
             const userMessageDiv = document.createElement('div');
@@ -197,16 +199,7 @@
         });
 
         document.getElementById('languageSelect').addEventListener('change', function() {
-            const selectedLanguage = this.value;
-            fetch(`/change_language/${selectedLanguage}`, {
-                method: 'POST'
-            }).then(response => {
-                if (response.ok) {
-                    console.log('Language changed successfully');
-                } else {
-                    console.error('Failed to change language');
-                }
-            });
+            selectedLanguage = this.value; // Update the global variable
         });
 
         function extractChatHistory() {
@@ -226,29 +219,29 @@
         }
 
         function exportPDF() {
-    const chatHistory = extractChatHistory();
-    const selectedLanguage = document.getElementById('languageSelect').value;
+            const chatHistory = extractChatHistory();
 
-    fetch('/export_pdf', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ chat_history: chatHistory, language: selectedLanguage })
-    })
-    .then(response => response.blob())
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = 'chat_summary.pdf';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-    })
-    .catch(error => console.error('Error exporting PDF:', error));
-}
+            fetch('/export_pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ chat_history: chatHistory, language: selectedLanguage })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'chat_summary.pdf';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error('Error exporting PDF:', error));
+        }
+
         function toggleChatWindow() {
             var chatWindow = document.getElementById('chatWindow');
             if (chatWindow.style.display === 'none' || chatWindow.style.display === '') {
