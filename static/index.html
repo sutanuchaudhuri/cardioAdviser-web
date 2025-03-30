@@ -74,20 +74,20 @@
             padding: 10px;
             border-radius: 5px;
             word-wrap: break-word;
+            display: flex;
+            align-items: center;
         }
         .user-message {
             text-align: right;
             color: blue;
             background-color: #e0f7fa;
+            justify-content: flex-end;
         }
         .ai-message {
             text-align: left;
             color: green;
             background-color: #f1f8e9;
-            max-width: 80%;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: pre-wrap;
+            justify-content: flex-start;
         }
         .icon-button {
             background: none;
@@ -95,6 +95,12 @@
             color: white;
             font-size: 18px;
             cursor: pointer;
+            margin-left: 10px;
+        }
+        .message-icon {
+            margin-right: 10px;
+        }
+        .user-icon {
             margin-left: 10px;
         }
     </style>
@@ -144,7 +150,7 @@
             // Append user question to chat history
             const userMessageDiv = document.createElement('div');
             userMessageDiv.className = 'chat-message user-message';
-            userMessageDiv.textContent = question;
+            userMessageDiv.innerHTML = `<span class="user-icon">👤</span>${question}`;
             chatHistoryDiv.appendChild(userMessageDiv);
 
             // Clear the question input box
@@ -153,6 +159,7 @@
 
             const aiMessageDiv = document.createElement('div');
             aiMessageDiv.className = 'chat-message ai-message';
+            aiMessageDiv.innerHTML = `<span class="message-icon">🤖</span>`;
             chatHistoryDiv.appendChild(aiMessageDiv);
 
             const eventSource = new EventSource(url);
@@ -169,7 +176,7 @@
                 } catch (error) {
                     const errorMessageDiv = document.createElement('div');
                     errorMessageDiv.className = 'chat-message ai-message';
-                    errorMessageDiv.textContent = "An error occurred: " + error.message;
+                    errorMessageDiv.innerHTML = `<span class="message-icon">🤖</span>An error occurred: ${error.message}`;
                     chatHistoryDiv.appendChild(errorMessageDiv);
                 }
             };
@@ -182,7 +189,7 @@
                 } else {
                     const errorMessageDiv = document.createElement('div');
                     errorMessageDiv.className = 'chat-message ai-message';
-                    errorMessageDiv.textContent = "An error occurred while streaming.";
+                    errorMessageDiv.innerHTML = `<span class="message-icon">🤖</span>An error occurred while streaming.`;
                     chatHistoryDiv.appendChild(errorMessageDiv);
                 }
                 eventSource.close();
@@ -202,18 +209,46 @@
             });
         });
 
-        function exportPDF() {
-            fetch('/export_pdf', {
-                method: 'POST'
-            }).then(response => {
-                if (response.ok) {
-                    console.log('PDF export initiated');
-                } else {
-                    console.error('Failed to export PDF');
+        function extractChatHistory() {
+            const chatHistoryDiv = document.getElementById('chatHistory');
+            const chatMessages = chatHistoryDiv.getElementsByClassName('chat-message');
+            const chatHistory = [];
+
+            for (let message of chatMessages) {
+                if (message.classList.contains('user-message')) {
+                    chatHistory.push({ "Human": message.textContent });
+                } else if (message.classList.contains('ai-message')) {
+                    chatHistory.push({ "AI": message.textContent });
                 }
-            });
+            }
+
+            return chatHistory;
         }
 
+        function exportPDF() {
+    const chatHistory = extractChatHistory();
+    const selectedLanguage = document.getElementById('languageSelect').value;
+
+    fetch('/export_pdf', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ chat_history: chatHistory, language: selectedLanguage })
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'chat_summary.pdf';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => console.error('Error exporting PDF:', error));
+}
         function toggleChatWindow() {
             var chatWindow = document.getElementById('chatWindow');
             if (chatWindow.style.display === 'none' || chatWindow.style.display === '') {

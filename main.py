@@ -1,8 +1,9 @@
 import json
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import AIMessageChunk
+
 from langchain_core.documents import Document
 import pickle
 # from logging import logging
@@ -18,9 +19,17 @@ from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.documents import Document
 from dotenv import load_dotenv, find_dotenv
 import os
-
-from sqlalchemy.testing.suite.test_reflection import metadata
-
+from starlette.middleware.sessions import SessionMiddleware
+from PyPDF2 import PdfWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from io import BytesIO
+from reportlab.lib import colors
+import re
 if os.environ.get("DYNO") is None: #Check if running on Heroku
     load_dotenv(find_dotenv())
 
@@ -107,11 +116,6 @@ documents.append(aditi_doc)
 
 
 
-# Print the loaded documents
-for doc in documents:
-    print(doc)
-
-
 
 #RAG chain component STARTS here
 
@@ -124,6 +128,7 @@ retriever = vectorstore.as_retriever().with_config(
 
 
 llm = ChatOpenAI(model="gpt-4o-mini",temperature=0,streaming=True)
+llm_summary = ChatOpenAI(model="gpt-4o-mini",temperature=0,streaming=False)
 #llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, streaming=True)
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -188,6 +193,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SessionMiddleware, secret_key="health123",max_age=None)
 
 chat_responses = []
 @app.get("/")
@@ -208,11 +214,17 @@ def serialize_aimessagechunk(chunk):
         )
 
 
-async def generate_chat_events(message):
+async def generate_chat_events(request: Request, message: str):
 
-    print("===================== START Chat model has started. generate_chat_events ====================")
-    print(message)
-    print("=====================END Chat model has started. generate_chat_events ====================")
+    # print("===================== START Chat model has started. generate_chat_events ====================")
+    # print(message)
+
+    session =  request.session
+    session_chat_history = session.get("session_chat_history", [])
+
+
+    session_chat_history.append({"User Question":message})
+    # print("=====================END Chat model has started. generate_chat_events ====================")
     final_message = ""
     try:
         async for event in rag_chain.astream_events(message, version="v1"):
@@ -263,20 +275,118 @@ async def generate_chat_events(message):
 
                 yield f"data: {data_json}\n\n"
             if event["event"] == "on_chat_model_end":
-                print("Chat model has completed one response.")
+                # print("Chat model has completed one response.")
                 if final_message != "":
                     print("====================================FINAL output==============================")
                     print("Final message:", final_message)
-                    print("====================================END FINAL output==============================")
+                    session_chat_history.append({"AI Response": final_message})
+                    session["session_chat_history"] = session_chat_history
+                    # print("====================================END FINAL output==============================")
 
-
+            session["session_chat_history"] = session_chat_history
     except Exception as e:
         print('error' + str(e))
+        #session["session_chat_history"] = session_chat_history
 
+
+
+
+
+from io import BytesIO
+
+
+
+
+
+
+
+@app.post("/export_pdf")
+async def export_chat(request: Request):
+    body = await request.body()
+    data = json.loads(body.decode('utf-8'))
+    chat_history = data.get('chat_history', [])
+    language_in = data.get('language', 'en')  # Default to 'en' if not provided
+    if language_in=='en':
+        language="English"
+    elif language_in == 'hi':
+        language = "Hindi"
+    else:
+        language = "Spanish"
+    template_messages = [("system", f"Format and summarize the following conversation without removing essential parts so that the human patient has all the answers. The content of the text would be entering into a pdf. Explain with proper section. Translate the summary to : {language}")]
+
+    for chat_item in chat_history:
+        if "Human" in chat_item:
+            template_messages.append(("human", chat_item["Human"]))
+        if "AI" in chat_item:
+            template_messages.append(("ai", chat_item["AI"]))
+
+    summary_prompt = ChatPromptTemplate.from_messages(template_messages)
+    formatted_prompt = summary_prompt.format()
+    summary = llm_summary.invoke(formatted_prompt)
+
+    pdf_title = "Chat Summary"
+    pdf_content = f"{pdf_title}\n\n{summary.content}"
+
+    # Create a PDF buffer
+    pdf_buffer = BytesIO()
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
+
+    # Define styles with a larger font size
+    styles = getSampleStyleSheet()
+    normal_style = styles['Normal']
+    title_style = ParagraphStyle(
+        'Title',
+        parent=styles['Heading1'],
+        fontSize=18,
+        spaceAfter=12,
+    )
+    section_style = ParagraphStyle(
+        'Section',
+        parent=styles['Heading2'],
+        fontSize=14,
+        spaceAfter=8,
+    )
+    content_style = ParagraphStyle(
+        'Content',
+        parent=styles['Normal'],
+        fontSize=12,
+        spaceAfter=6,
+    )
+
+    # Create a list to hold the PDF elements
+    story = []
+
+    # Add the title
+    story.append(Paragraph(pdf_title, title_style))
+    story.append(Spacer(1, 12))
+
+    # Split the content into sections
+    sections = pdf_content.split('##')
+    for section in sections:
+        if section.strip():
+            lines = section.split('\n')
+            if lines:
+                # Add section title
+                story.append(Paragraph(lines[0].strip(), section_style))
+                story.append(Spacer(1, 8))
+                # Add section content
+                for line in lines[1:]:
+                    if line.strip():
+                        # Highlight key texts in red and remove "**"
+                        line = re.sub(r'\*\*(.*?)\*\*', r'<font color="red">\1</font>', line)
+                        story.append(Paragraph(line.strip(), content_style))
+                        story.append(Spacer(1, 6))
+
+    # Build the PDF
+    doc.build(story)
+
+    pdf_buffer.seek(0)
+
+    return StreamingResponse(pdf_buffer, media_type='application/pdf', headers={'Content-Disposition': 'attachment; filename="chat_summary.pdf"'})
 
 @app.get("/chat_stream/{message}")
-async def chat_stream_events(message: str):
-    return StreamingResponse(generate_chat_events({"question": message, "chat_history": []}),
+async def chat_stream_events(request:Request,message: str):
+    return StreamingResponse(generate_chat_events(request=request,message={"question": message, "chat_history": []}),
                              media_type="text/event-stream")
 
 
