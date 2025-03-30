@@ -1,182 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Stream</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        #output {
-            border: 1px solid #ddd;
+  .chat-footer {
             padding: 10px;
-            margin-top: 10px;
-            height: 200px;
-            overflow-y: scroll;
-            white-space: pre-wrap; /* To ensure line breaks are respected */
-        }
-        #context {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 10px;
-            height: 200px;
-            overflow-y: scroll;
-            white-space: pre-wrap; /* To ensure line breaks are respected */
-        }
-          #source {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 10px;
-            height: 200px;
-            white-space: pre-wrap; /* To ensure line breaks are respected */
-        }
-        #reformulated {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 10px;
-            height: 100px;
-            overflow-y: scroll;
-            white-space: pre-wrap; /* To ensure line breaks are respected */
+            border-top: 1px solid #ccc;
+            background-color: #f8f9fa;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
         }
 
 
-            .chat-history {
-              text-align: left;
-              width: 100%;
-              display: flex;
-              flex-direction: column;
-              overflow-y: auto;
-            }
-            .chat-message {
-              width: fit-content;
-              word-wrap: break-word;
-            }
 
-            .chat-message.user-input {
-              background-color: #d0eaff; /* Light blue background */
-              text-align: left;
-              border-radius: 5px;
-              padding: 5px;
-              margin-bottom: 8px;
-          }
+      <button style="width: 100px; height: 100px; background-color: #BB3A83" class="floating-button" onclick="toggleChatWindow()">💬</button>
 
-          .chat-message.ai-response {
-              background-color: #f1f1f1; /* Light grey background */
-              text-align: left;
-              border-radius: 5px;
-              padding: 5px;
-              margin-bottom: 8px;
-            }
-
-            #footer {
-                position: fixed;
-                bottom: 3%;
-                width: 95%;
-            }
-
-    </style>
-</head>
-<body>
-
-
-
-
-
-
-    <div class="container mt-5">
-        <h1 class="text-center">Ask a Question</h1>
-        <form id="questionForm" class="mb-4">
-            <div class="form-group">
-                <label for="question">Question:</label>
-                <input type="text" class="form-control" id="question" name="question" required>
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            Chat
+            <div>
+                <select id="languageSelect" class="icon-button">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="hi">Hindi</option>
+                    <option value="zh">Mandarin</option>
+                </select>
+                <button class="icon-button" onclick="exportPDF()">📄</button>
+                <button class="minimize-button" onclick="toggleChatWindow()">−</button>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-
-        Reformulated Question:
-        <div id="reformulated" class="border rounded p-3"></div>
-
-        Answer:
-        <div id="output" class="border rounded p-3"></div>
-
-        Context:
-        <div id="context" class="border rounded p-3"></div>
-
-        Source:
-        <div id="source" class="border rounded p-3"></div>
+        </div>
+        <div class="chat-body">
+            <div id="chatHistory" class="chat-history"></div>
+        </div>
+        <div class="chat-footer">
+            <form id="questionForm" class="mb-4">
+                <div class="form-group">
+                    <label for="question">Question:</label>
+                    <input type="text" class="form-control" id="question" name="question" required>
+                </div>
+                <button type="submit" style="background-color: #BB3A83" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    <script>
-        document.getElementById('questionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const question = document.getElementById('question').value;
-            const outputDiv = document.getElementById('output');
-            const contextDiv = document.getElementById('context');
-            const sourceDiv = document.getElementById('source');
-            const reformulatedDiv = document.getElementById('reformulated');
-            outputDiv.innerHTML = ''; // Clear previous output
-            contextDiv.innerHTML = ''; // Clear previous context
-            reformulatedDiv.innerHTML = ''; // Clear previous reformulated question
-            sourceDiv.innerHTML = ''; // Clear previous source
-
-            const url = `/chat_stream/${encodeURIComponent(question)}`;
-
-            const eventSource = new EventSource(url);
-
-            eventSource.onmessage = function(event) {
-                try {
-                    if (event.data.trim()) { // Check if the data is not empty
-                        const data = JSON.parse(event.data);
-                        if (data.context) {
-                            // Display context data directly
-                            const contextData = data.context.map(item => item.page_content).join('<br><br>');
-                            contextDiv.innerHTML = contextData;
-                            contextDiv.scrollTop = contextDiv.scrollHeight; // Scroll to bottom
-                            //alert(JSON.stringify(data.context));
-
-
-                             const sourceData = data.context.map(item => item.metadata.source).join('<br>');
-                              sourceDiv.innerHTML = sourceData;
-
-
-                        }
-                        if (data.reformulated) {
-                            // Append reformulated question to reformulatedDiv
-                            reformulatedDiv.innerHTML += data.reformulated;
-                            reformulatedDiv.scrollTop = reformulatedDiv.scrollHeight; // Scroll to bottom
-                        }
-                        if (data.data) {
-                            // Append regular data to outputDiv
-                            outputDiv.innerHTML += data.data;
-                            outputDiv.scrollTop = outputDiv.scrollHeight; // Scroll to bottom
-                        }
 
 
 
 
-
-                    }
-                } catch (error) {
-                    outputDiv.innerHTML += "\nAn error occurred: " + error.message;
-                }
-            };
-
-            eventSource.onerror = function() {
-                if (eventSource.readyState === EventSource.CLOSED) {
-                    // Do nothing
-                } else if (eventSource.readyState === EventSource.CONNECTING) {
-                    // Do nothing
-                } else {
-                    outputDiv.innerHTML += "\nAn error occurred while streaming.";
-                }
-                eventSource.close();
-            };
-        });
-    </script>
-</body>
-</html>
+  .chat-window {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 60%;
+            height: 100%;
+            border-left: 1px solid #ccc;
+            background-color: white;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            resize: horizontal;
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #BB3A83;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-body {
+            padding: 10px;
+            height: calc(100% - 110px); /* Adjusted height to account for header and footer */
+            overflow-y: auto;
+        }

@@ -19,7 +19,7 @@
             top: 0;
             left: 0;
         }
-        .chat-window {
+       .chat-window {
             position: fixed;
             top: 0;
             right: 0;
@@ -31,7 +31,7 @@
             display: none;
             flex-direction: column;
             resize: horizontal;
-            overflow: auto;
+            overflow: hidden;
         }
         .chat-header {
             background-color: #BB3A83;
@@ -45,7 +45,7 @@
         }
         .chat-body {
             padding: 10px;
-            height: calc(100% - 50px);
+            height: calc(100% - 110px); /* Adjusted height to account for header and footer */
             overflow-y: auto;
         }
         .floating-button {
@@ -111,7 +111,7 @@
 
     <button style="width: 100px; height: 100px; background-color: #BB3A83" class="floating-button" onclick="toggleChatWindow()">💬</button>
 
-    <div class="chat-window" id="chatWindow">
+   <div class="chat-window" id="chatWindow">
         <div class="chat-header">
             Chat
             <div>
@@ -119,6 +119,7 @@
                     <option value="en">English</option>
                     <option value="es">Spanish</option>
                     <option value="hi">Hindi</option>
+                    <option value="zh">Mandarin</option>
                 </select>
                 <button class="icon-button" onclick="exportPDF()">📄</button>
                 <button class="minimize-button" onclick="toggleChatWindow()">−</button>
@@ -126,10 +127,12 @@
         </div>
         <div class="chat-body">
             <div id="chatHistory" class="chat-history"></div>
+        </div>
+        <div class="chat-footer">
             <form id="questionForm" class="mb-4">
-                <div class="form-group">
-                    <label for="question">Question:</label>
-                    <input type="text" class="form-control" id="question" name="question" required>
+                <div class="form-group" required style="margin-left: 10px; margin-right: 10px; padding-left: 10px; padding-right: 10px;">
+                    <label for="question">Your Question :</label>
+                    <input type="text" class="form-control" id="question" name="question" >
                 </div>
                 <button type="submit" style="background-color: #BB3A83" class="btn btn-primary">Submit</button>
             </form>
