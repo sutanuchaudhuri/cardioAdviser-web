@@ -87,6 +87,7 @@ html_docs={"a.html":"https://www.pennmedicine.org/make-an-appointment"
 
 # Define the URLs to load
 urls = [
+    "https://www.hopkinsmedicine.org/health/treatment-tests-and-therapies/heart-transplant"
     "https://diwakaraditi30.wixsite.com/cardiac-help/general-info-cabg"
     ,"https://diwakaraditi30.wixsite.com/cardiac-help/causes"
     ,"https://diwakaraditi30.wixsite.com/cardiac-help/risks"
@@ -96,8 +97,62 @@ urls = [
     ,'https://www.pennmedicine.org/providers?keyword=Penn-Heart-Surgery-Program&keywordid=57534&keywordtypeid=11'
     ,'https://www.hopkinsmedicine.org/heart-vascular-institute/cardiac-surgery'
     ,'https://www.hopkinsmedicine.org/heart-vascular-institute/cardiac-surgery/mitral-valve-repair-replacement'
+    
 
 ]
+urls_doc=[
+    "https://www.lung.org/lung-health-diseases/lung-procedures-and-tests/lobectomy#:~:text=A%20lobectomy%20is%20a%20surgical,lobes%20of%20your%20left%20lung.",
+    "https://my.clevelandclinic.org/health/treatments/17608-lobectomy#procedure-details",
+    "https://www.hopkinsmedicine.org/health/treatment-tests-and-therapies/lobectomy",
+    "https://ctsurgerypatients.org/procedures/lobectomy",
+    "https://www.cancercenter.com/cancer-types/lung-cancer/diagnosis-and-detection/lobectomy",
+    "https://siteman.wustl.edu/treatment/cancer-types/lung-cancer/treatments/robotic-assisted-lobectomy/",
+    "https://www.thoracicsurgery.co.uk/lobectomy/",
+    "https://stanfordhealthcare.org/medical-treatments/v/vats/vats-types/vats-lobectomy.html",
+    "https://www.svhlunghealth.com.au/procedures/procedures-treatments/video-assisted-thoracoscopic-surgery-vats-lobectomy",
+    "https://www.beaumont.org/treatments/lobectomy",
+    "https://www.who.int/news-room/fact-sheets/detail/tuberculosis#:~:text=Tuberculosis%20(TB)%20is%20an%20infectious,been%20infected%20with%20TB%20bacteria.",
+    "https://www.hopkinsmedicine.org/health/treatment-tests-and-therapies/lobectomy#:~:text=Fungal%20infection.%20Fungi%20can%20grow%20in%20the%20body%20and%20cause%20infections.",
+    "https://www.cancer.org/cancer/types/lung-cancer/about/what-is.html",
+    "https://thesurgicalclinics.com/lung-surgery-why-might-someone-need-a-lobectomy/",
+    "https://www.bswhealth.com/treatments-and-procedures/lobectomy",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC4543327/",
+    "https://publications.ersnet.org/content/erj/46/suppl59/pa2202",
+    "https://www.cancerresearchuk.org/about-cancer/lung-cancer/treatment/non-small-cell-lung-cancer",
+    "https://nyulangone.org/conditions/chronic-obstructive-pulmonary-disease/treatments/lifestyle-changes-for-chronic-obstructive-pulmonary-disease",
+    "https://resources.healthgrades.com/right-care/lungs-breathing-and-respiration/lobectomy",
+    "https://healthinfo.coxhealth.com/Conditions/Cancer/92,P07749",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC4606870/#:~:text=A%20recent%20review%20of,lobectomy%20%5B3%5D.&text=is%2010%25%20to%2050%25%2C,lobectomy%20%5B3%5D.&text=the%20operations%20is%20increasing,lobectomy%20%5B3%5D.&text=The%20most%20common%20complications,lobectomy%20%5B3%5D.",
+    "https://www.verywellhealth.com/lobectomy-complications-and-prognosis-2249329",
+    "https://www.sciencedirect.com/science/article/abs/pii/S0003497522003745",
+    "https://shc.amegroups.org/article/view/5996/html",
+    "https://lungfoundation.com.au/blog/understanding-lobectomies/",
+    "https://academic.oup.com/ejcts/article/20/4/694/373980",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC6462550/#:~:text=found%20median%20cost%20of,registry%20%2815%2C18%29.",
+    "https://atlanticendomd.com/how-much-does-thyroid-surgery-cost-with-insurance/#:~:text=Understanding%20Different%20Thyroid%20Surgeries,Minimally%20invasive",
+    "https://www.annalsthoracicsurgery.org/article/S0003-4975(20)31896-8/fulltext",
+    "https://myhealth.alberta.ca/Health/aftercareinformation/pages/conditions.aspx?hwid=zy1364",
+    "https://med.uth.edu/cvs/patient-care/conditionsandprocedures/video-assisted-thoracic-surgery-vats/recovery-after-vats-and-robotic-lobectomy-surgery/",
+    "https://www.mountsinai.org/health-library/discharge-instructions/lung-surgery-discharge#:~:text=Ask%20your%20surgeon%20when,is%20heavy.",
+    "https://www.henryford.com/blog/2021/11/lungs-after-lobectomy",
+    "https://go2.org/resources-and-support/support-groups/",
+    "https://www.mskcc.org/cancer-care/patient-education/after-your-thoracic-surgery#:~:text=You%27ll%20have%20less%20pain,and%20discomfort.",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC4367696/",
+    "https://www.sciencedirect.com/science/article/pii/S0022522320300544",
+    "https://tlcr.amegroups.org/article/view/2053/html",
+    "https://acsjournals.onlinelibrary.wiley.com/doi/10.1002/cncr.24625",
+    "https://pubmed.ncbi.nlm.nih.gov/32067786/#:~:text=Results%3A%20Among%20the%20543,The%2010%2Dyear",
+    "https://ascopubs.org/doi/10.1200/JCO.2011.39.5269#:~:text=Treatment%20rates%20decreased%20more,lower%20rates",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC4314218/#:~:text=Women%20with%20lung%20cancer,on%20sex.",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC5812758/#:~:text=Black%20patients%20with%20lung,lung%20cancer.",
+    "https://www.mylungcancerteam.com/resources/lobectomy-for-lung-cancer-how-to-prepare-and-recover#:~:text=Your%20doctor%20may%20advise,after%20surgery.",
+    "https://lungfoundation.com.au/blog/lobectomies-before-after-care/",
+    "https://ctsurgerypatients.org/10-common-myths-about-lung-cancer-surgery",
+    "https://www.svhlunghealth.com.au/rehabilitation/after-lung-surgery",
+    "https://www.sciencedirect.com/science/article/pii/S0003497522006750",
+    "https://pubmed.ncbi.nlm.nih.gov/33188754/#:~:text=Results%3A%20The%20mean%2090%2Dday,cost%2C%20respectively."
+]
+urls=urls+urls_doc
 
 #load documents from web
 documents=load_document_from_web(urls)
@@ -110,6 +165,7 @@ for html_doc_key in html_docs:
 texts=None
 with open('document.pickle', 'rb') as handle:
     texts = pickle.load(handle)
+
 
 aditi_doc = Document(page_content=texts[0], metadata={'source':'Author: Aditi Diwakar, '
                                                                'Title: Sugery- Patient Guide'})
@@ -408,7 +464,7 @@ async def chat_stream_events(request: Request, message: str):
                              media_type="text/event-stream")
 
 
-# if __name__ == "__main__":
-#     import uvicorn
-#
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8002)
