@@ -233,7 +233,8 @@ urls2 = [
     # Add remaining URLs in similar fashion...
 ]
 
-urls=urls+urls_doc
+urls=urls
+# urls_doc
 #urls1+urls2
 urls=list(set(urls)) #remove duplicates
 #load documents from web
