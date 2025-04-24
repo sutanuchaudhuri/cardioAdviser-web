@@ -97,6 +97,8 @@ urls = [
     ,'https://www.pennmedicine.org/providers?keyword=Penn-Heart-Surgery-Program&keywordid=57534&keywordtypeid=11'
     ,'https://www.hopkinsmedicine.org/heart-vascular-institute/cardiac-surgery'
     ,'https://www.hopkinsmedicine.org/heart-vascular-institute/cardiac-surgery/mitral-valve-repair-replacement'
+    ,'https://www.cedars-sinai.org/blog/options-treating-mitral-valve-disease.html'
+    ,'https://myhealth.alberta.ca/Health/aftercareinformation/pages/conditions.aspx?hwid=zy1364'
     
 
 ]
